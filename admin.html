@@ -15,6 +15,9 @@
         table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 10px; overflow: hidden; }
         th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.9rem; }
         th { background: #0f172a; color: #94a3b8; text-transform: uppercase; font-size: 0.78rem; }
+        #loginBox { max-width: 360px; margin: 80px auto; background: #1e293b; padding: 24px; border-radius: 12px; border: 1px solid #334155; text-align: center; }
+        #loginBox input { width: 100%; box-sizing: border-box; padding: 10px 12px; margin: 12px 0; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #f8fafc; font-size: 1rem; }
+        #errMsg { color: #f87171; font-size: 0.88rem; min-height: 20px; }
         #pdfTemplate { display: none; background: #ffffff; color: #1e293b; padding: 30px; font-family: Arial, sans-serif; }
         #pdfTemplate h1 { color: #0f172a; border-bottom: 2px solid #0284c7; padding-bottom: 8px; font-size: 20px; }
         .grid-pdf { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
@@ -22,6 +25,13 @@
     </style>
 </head>
 <body>
+    <div id="loginBox">
+        <h3>Acceso Administrador</h3>
+        <input type="password" id="passInput" placeholder="Clave de acceso" onkeydown="if(event.key==='Enter') verificarClave()">
+        <button onclick="verificarClave()" style="width:100%;">Entrar</button>
+        <div id="errMsg"></div>
+    </div>
+
     <div class="wrap" id="adminPanel" style="display:none;">
         <div class="header">
             <h2>Gestión de Resultados · Test Vocacional</h2>
@@ -49,104 +59,143 @@
 
     <script>
         const CLAVE_ADMIN = "2027";
-        const SUPABASE_URL = 'https://wxgboogoygogxrftsire.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4Z2Jvb2dveWdvZ3hyZnRzaXJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NjA2NjUsImV4cCI6MjEwNTUzNjY2NX0.tA9eA3aKZiY1gJq_skJaaUIX56Ipp4JAzlAmw0dDujA';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = "https://wxgboogoygogxrftsire.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4Z2Jvb2dveWdvZ3hyZnRzaXJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NjA2NjUsImV4cCI6MjEwNTUzNjY2NX0.tA9eA3aKZiY1gJq_skJaaUIX56Ipp4JAzlAmw0dDujA";
+
+        let supabaseClient = null;
         let registrosGlobales = [];
 
-        const ingreso = prompt("Ingresa la clave de administrador:");
-        if (ingreso === CLAVE_ADMIN) {
-            document.getElementById('adminPanel').style.display = 'block';
-            cargarDatos();
-        } else {
-            document.body.innerHTML = "<h3 style='text-align:center;margin-top:50px;'>Acceso denegado</h3>";
+        function inicializarSupabase() {
+            if (!supabaseClient && window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+            return Boolean(supabaseClient);
+        }
+
+        function verificarClave() {
+            const val = document.getElementById("passInput").value;
+            const errEl = document.getElementById("errMsg");
+            if (val === CLAVE_ADMIN) {
+                errEl.textContent = "";
+                document.getElementById("loginBox").style.display = "none";
+                document.getElementById("adminPanel").style.display = "block";
+                if (!inicializarSupabase()) {
+                    errEl.textContent = "No se pudo cargar la librería de Supabase.";
+                    document.getElementById("loginBox").style.display = "block";
+                    document.getElementById("adminPanel").style.display = "none";
+                    return;
+                }
+                cargarDatos();
+            } else {
+                errEl.textContent = "Clave incorrecta.";
+            }
         }
 
         async function cargarDatos() {
+            const tbody = document.getElementById("tablaBody");
+            tbody.innerHTML = '<tr><td colspan="6">Cargando resultados...</td></tr>';
+
             const { data, error } = await supabaseClient
-                .from('test_vocacional_resultados')
-                .select('*')
-                .order('created_at', { ascending: false });
+                .from("test_vocacional_resultados")
+                .select("*")
+                .order("created_at", { ascending: false });
 
-            if (error) return alert("Error cargando datos: " + error.message);
-            registrosGlobales = data;
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="6" style="color:#f87171;">Error cargando datos: ' + error.message + '</td></tr>';
+                return;
+            }
 
-            const tbody = document.getElementById('tablaBody');
-            tbody.innerHTML = data.map((row, idx) => {
-                const fecha = new Date(row.created_at).toLocaleString('es-CL');
-                return `<tr>
-                    <td>${fecha}</td>
-                    <td><strong>${row.nombre_participante || 'Anónimo'}</strong></td>
-                    <td>${row.perfil_principal}</td>
-                    <td>${row.segundo_perfil}</td>
-                    <td>${(row.carreras_sugeridas || []).join(', ')}</td>
-                    <td><button class="pdf-btn" onclick="generarPDF(${idx})">📄 PDF</button></td>
-                </tr>`;
-            }).join('');
+            registrosGlobales = data || [];
+            if (!registrosGlobales.length) {
+                tbody.innerHTML = '<tr><td colspan="6">Aún no hay resultados registrados.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = registrosGlobales.map((row, idx) => {
+                const fecha = new Date(row.created_at).toLocaleString("es-CL");
+                const carreras = Array.isArray(row.carreras_sugeridas) ? row.carreras_sugeridas.join(", ") : "";
+                return "<tr>" +
+                    "<td>" + fecha + "</td>" +
+                    "<td><strong>" + (row.nombre_participante || "Anónimo") + "</strong></td>" +
+                    "<td>" + (row.perfil_principal || "") + "</td>" +
+                    "<td>" + (row.segundo_perfil || "") + "</td>" +
+                    "<td>" + carreras + "</td>" +
+                    '<td><button class="pdf-btn" onclick="generarPDF(' + idx + ')">📄 PDF</button></td>' +
+                "</tr>";
+            }).join("");
         }
 
         function exportarCSV() {
-            let csv = "﻿Fecha;Participante;Perfil_1;Perfil_2;R;I;A;S;E;C;Apt_Verbal;Apt_Numerica;Apt_Espacial;Apt_Practica;Apt_Interpersonal;Apt_Organizacion;Carreras
-";
-            registrosGlobales.forEach(r => {
-                const f = new Date(r.created_at).toLocaleString('es-CL');
+            if (!registrosGlobales.length) {
+                alert("No hay registros para exportar.");
+                return;
+            }
+            const headers = "Fecha;Participante;Perfil_1;Perfil_2;R;I;A;S;E;C;Apt_Verbal;Apt_Numerica;Apt_Espacial;Apt_Practica;Apt_Interpersonal;Apt_Organizacion;Carreras";
+            const rows = registrosGlobales.map(r => {
+                const f = new Date(r.created_at).toLocaleString("es-CL");
                 const ri = r.puntajes_riasec || {};
                 const ap = r.puntajes_aptitudes || {};
-                csv += `"${f}";"${r.nombre_participante}";"${r.perfil_principal}";"${r.segundo_perfil}";${ri.R||0};${ri.I||0};${ri.A||0};${ri.S||0};${ri.E||0};${ri.C||0};${ap.V||0};${ap.N||0};${ap.E||0};${ap.P||0};${ap.S||0};${ap.O||0};"${(r.carreras_sugeridas||[]).join(', ')}"
-`;
+                const carreras = Array.isArray(r.carreras_sugeridas) ? r.carreras_sugeridas.join(", ") : "";
+                return '"' + f + '";"' + (r.nombre_participante || "Anónimo") + '";"' + (r.perfil_principal || "") + '";"' + (r.segundo_perfil || "") + '";' + (ri.R||0) + ';' + (ri.I||0) + ';' + (ri.A||0) + ';' + (ri.S||0) + ';' + (ri.E||0) + ';' + (ri.C||0) + ';' + (ap.V||0) + ';' + (ap.N||0) + ';' + (ap.E||0) + ';' + (ap.P||0) + ';' + (ap.S||0) + ';' + (ap.O||0) + ';"' + carreras + '"';
             });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement('a');
+            const csv = "\uFEFF" + [headers, ...rows].join("\n");
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = `Consolidado_Test_Vocacional_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = "Consolidado_Test_Vocacional_" + new Date().toISOString().slice(0,10) + ".csv";
             a.click();
         }
 
         function generarPDF(index) {
+            if (!window.html2pdf) {
+                alert("No se cargó html2pdf. Revisa tu conexión o recarga la página.");
+                return;
+            }
             const r = registrosGlobales[index];
             const ri = r.puntajes_riasec || {};
             const ap = r.puntajes_aptitudes || {};
-            const fecha = new Date(r.created_at).toLocaleString('es-CL');
-            const molde = document.getElementById('pdfTemplate');
+            const fecha = new Date(r.created_at).toLocaleString("es-CL");
+            const carreras = Array.isArray(r.carreras_sugeridas) ? r.carreras_sugeridas.join(" · ") : "";
+            const molde = document.getElementById("pdfTemplate");
 
-            molde.style.display = 'block';
-            molde.innerHTML = `
-                <h1>Informe Individual de Orientación Vocacional</h1>
-                <p><strong>Participante:</strong> ${r.nombre_participante || 'Anónimo'} &nbsp;|&nbsp; <strong>Fecha:</strong> ${fecha}</p>
-                <div class="box-pdf" style="background:#e0f2fe; border-color:#0284c7;">
-                    <strong>Combinación Dominante:</strong> ${r.perfil_principal} + ${r.segundo_perfil}<br>
-                    <strong>Áreas de Estudio Sugeridas:</strong> ${(r.carreras_sugeridas || []).join(' · ')}
-                </div>
-                <div class="grid-pdf">
-                    <div class="box-pdf">
-                        <h3>Intereses RIASEC (Máx. 30 pts)</h3>
-                        <p>Emprendedor (E): <strong>${ri.E || 0}</strong> (${Math.round(((ri.E||0)/30)*100)}%)</p>
-                        <p>Social (S): <strong>${ri.S || 0}</strong> (${Math.round(((ri.S||0)/30)*100)}%)</p>
-                        <p>Investigador (I): <strong>${ri.I || 0}</strong> (${Math.round(((ri.I||0)/30)*100)}%)</p>
-                        <p>Realista (R): <strong>${ri.R || 0}</strong> (${Math.round(((ri.R||0)/30)*100)}%)</p>
-                        <p>Convencional (C): <strong>${ri.C || 0}</strong> (${Math.round(((ri.C||0)/30)*100)}%)</p>
-                        <p>Artístico (A): <strong>${ri.A || 0}</strong> (${Math.round(((ri.A||0)/30)*100)}%)</p>
-                    </div>
-                    <div class="box-pdf">
-                        <h3>Aptitudes Percibidas (Máx. 20 pts)</h3>
-                        <p>Espacial y Visual: <strong>${ap.E || 0}</strong> (${Math.round(((ap.E||0)/20)*100)}%)</p>
-                        <p>Lógico-Numérica: <strong>${ap.N || 0}</strong> (${Math.round(((ap.N||0)/20)*100)}%)</p>
-                        <p>Práctica y Motriz: <strong>${ap.P || 0}</strong> (${Math.round(((ap.P||0)/20)*100)}%)</p>
-                        <p>Interpersonal: <strong>${ap.S || 0}</strong> (${Math.round(((ap.S||0)/20)*100)}%)</p>
-                        <p>Organización: <strong>${ap.O || 0}</strong> (${Math.round(((ap.O||0)/20)*100)}%)</p>
-                        <p>Verbal: <strong>${ap.V || 0}</strong> (${Math.round(((ap.V||0)/20)*100)}%)</p>
-                    </div>
-                </div>
-                <p style="font-size:11px; color:#64748b; margin-top:20px;">Documento generado automáticamente para gestión y seguimiento vocacional.</p>
-            `;
+            molde.style.display = "block";
+            molde.innerHTML =
+                "<h1>Informe Individual de Orientación Vocacional</h1>" +
+                "<p><strong>Participante:</strong> " + (r.nombre_participante || "Anónimo") + " &nbsp;|&nbsp; <strong>Fecha:</strong> " + fecha + "</p>" +
+                '<div class="box-pdf" style="background:#e0f2fe; border-color:#0284c7;">' +
+                    "<strong>Combinación Dominante:</strong> " + (r.perfil_principal || "") + " + " + (r.segundo_perfil || "") + "<br>" +
+                    "<strong>Áreas de Estudio Sugeridas:</strong> " + carreras +
+                "</div>" +
+                '<div class="grid-pdf">' +
+                    '<div class="box-pdf">' +
+                        "<h3>Intereses RIASEC (Máx. 30 pts)</h3>" +
+                        "<p>Emprendedor (E): <strong>" + (ri.E || 0) + "</strong> (" + Math.round(((ri.E||0)/30)*100) + "%)</p>" +
+                        "<p>Social (S): <strong>" + (ri.S || 0) + "</strong> (" + Math.round(((ri.S||0)/30)*100) + "%)</p>" +
+                        "<p>Investigador (I): <strong>" + (ri.I || 0) + "</strong> (" + Math.round(((ri.I||0)/30)*100) + "%)</p>" +
+                        "<p>Realista (R): <strong>" + (ri.R || 0) + "</strong> (" + Math.round(((ri.R||0)/30)*100) + "%)</p>" +
+                        "<p>Convencional (C): <strong>" + (ri.C || 0) + "</strong> (" + Math.round(((ri.C||0)/30)*100) + "%)</p>" +
+                        "<p>Artístico (A): <strong>" + (ri.A || 0) + "</strong> (" + Math.round(((ri.A||0)/30)*100) + "%)</p>" +
+                    "</div>" +
+                    '<div class="box-pdf">' +
+                        "<h3>Aptitudes Percibidas (Máx. 20 pts)</h3>" +
+                        "<p>Espacial y Visual: <strong>" + (ap.E || 0) + "</strong> (" + Math.round(((ap.E||0)/20)*100) + "%)</p>" +
+                        "<p>Lógico-Numérica: <strong>" + (ap.N || 0) + "</strong> (" + Math.round(((ap.N||0)/20)*100) + "%)</p>" +
+                        "<p>Práctica y Motriz: <strong>" + (ap.P || 0) + "</strong> (" + Math.round(((ap.P||0)/20)*100) + "%)</p>" +
+                        "<p>Interpersonal: <strong>" + (ap.S || 0) + "</strong> (" + Math.round(((ap.S||0)/20)*100) + "%)</p>" +
+                        "<p>Organización: <strong>" + (ap.O || 0) + "</strong> (" + Math.round(((ap.O||0)/20)*100) + "%)</p>" +
+                        "<p>Verbal: <strong>" + (ap.V || 0) + "</strong> (" + Math.round(((ap.V||0)/20)*100) + "%)</p>" +
+                    "</div>" +
+                "</div>" +
+                '<p style="font-size:11px; color:#64748b; margin-top:20px;">Documento generado automáticamente para gestión y seguimiento vocacional.</p>';
 
+            const safeName = (r.nombre_participante || "Participante").replace(/[^a-zA-Z0-9_-]+/g, "_");
             html2pdf().set({
                 margin: 12,
-                filename: `Ficha_${(r.nombre_participante || 'Participante').replace(/\s+/g, '_')}.pdf`,
+                filename: "Ficha_" + safeName + ".pdf",
                 html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
             }).from(molde).save().then(() => {
-                molde.style.display = 'none';
+                molde.style.display = "none";
             });
         }
     </script>
