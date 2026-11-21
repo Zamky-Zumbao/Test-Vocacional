@@ -86,12 +86,14 @@
         }
 
         function exportarCSV() {
-            let csv = "\uFEFFFecha;Participante;Perfil_1;Perfil_2;R;I;A;S;E;C;Apt_Verbal;Apt_Numerica;Apt_Espacial;Apt_Practica;Apt_Interpersonal;Apt_Organizacion;Carreras\n";
+            let csv = "﻿Fecha;Participante;Perfil_1;Perfil_2;R;I;A;S;E;C;Apt_Verbal;Apt_Numerica;Apt_Espacial;Apt_Practica;Apt_Interpersonal;Apt_Organizacion;Carreras
+";
             registrosGlobales.forEach(r => {
                 const f = new Date(r.created_at).toLocaleString('es-CL');
                 const ri = r.puntajes_riasec || {};
                 const ap = r.puntajes_aptitudes || {};
-                csv += `"${f}";"${r.nombre_participante}";"${r.perfil_principal}";"${r.segundo_perfil}";${ri.R||0};${ri.I||0};${ri.A||0};${ri.S||0};${ri.E||0};${ri.C||0};${ap.V||0};${ap.N||0};${ap.E||0};${ap.P||0};${ap.S||0};${ap.O||0};"${(r.carreras_sugeridas||[]).join(', ')}"\n`;
+                csv += `"${f}";"${r.nombre_participante}";"${r.perfil_principal}";"${r.segundo_perfil}";${ri.R||0};${ri.I||0};${ri.A||0};${ri.S||0};${ri.E||0};${ri.C||0};${ap.V||0};${ap.N||0};${ap.E||0};${ap.P||0};${ap.S||0};${ap.O||0};"${(r.carreras_sugeridas||[]).join(', ')}"
+`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const a = document.createElement('a');
