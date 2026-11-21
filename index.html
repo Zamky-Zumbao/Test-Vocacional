@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vocacional 2027</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #05060f;
+            --bg-panel: rgba(17, 19, 41, 0.72);
+            --bg-panel-solid: #12142c;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --border-soft: rgba(148, 143, 255, 0.18);
+            --border-strong: rgba(148, 143, 255, 0.4);
+            --primary: #7c5cff;
+            --primary-bright: #a48cff;
+            --cyan: #2dd4f0;
+            --pink: #ff5fa2;
+            --text-main: #eef0ff;
+            --text-muted: #9498c2;
+            --success: #3ee08a;
+            --success-soft: rgba(62, 224, 138, 0.12);
+            --radius: 20px;
+            --radius-sm: 14px;
+            --font-display: 'Space Grotesk', system-ui, sans-serif;
+            --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Fondo ambiental tipo nebulosa */
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 60vmax;
+            height: 60vmax;
+            border-radius: 50%;
+            filter: blur(90px);
+            z-index: 0;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        body::before {
+            top: -20vmax;
+            left: -15vmax;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            animation: drift1 22s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            bottom: -25vmax;
+            right: -20vmax;
+            background: radial-gradient(circle, var(--cyan) 0%, transparent 70%);
+            animation: drift2 26s ease-in-out infinite alternate;
+        }
+
+        @keyframes drift1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(6vmax, 4vmax) scale(1.1); }
+        }
+
+        @keyframes drift2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-5vmax, -6vmax) scale(1.08); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body::before, body::after { animation: none; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--bg-panel);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 28px 22px 32px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(124, 92, 255, 0.18), rgba(45, 212, 240, 0.18));
+            color: var(--primary-bright);
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border-strong);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 8px 2px var(--cyan);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            text-align: center;
+            margin: 0 0 6px 0;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(120deg, #ffffff 0%, var(--primary-bright) 55%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+            font-size: 0.95rem;
+        }
+
+        /* Barra de progreso */
+        .progress-wrap {
+            margin-bottom: 26px;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+        }
+
+        #progressCount {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        .progress-track {
+            height: 8px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border-soft);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--cyan) 100%);
+            border-radius: 20px;
+            box-shadow: 0 0 10px 1px rgba(45, 212, 240, 0.6);
+            transition: width 0.35s ease;
+        }
+
+        .section-heading {
+            margin: 28px 0 8px;
+            color: var(--primary-bright);
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+        }
+        .section-intro {
+            color: var(--text-muted);
+            font-size: .9rem;
+            line-height: 1.5;
+            margin: 0 0 18px;
+        }
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-left: 3px solid var(--primary);
+            padding: 18px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
+        }
+
+        .question-card:hover {
+            border-color: var(--border-strong);
+            border-left-color: var(--cyan);
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .question-card:has(input:checked) {
+            border-left-color: var(--success);
+        }
+
+        .question-title {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-weight: 500;
+            margin-bottom: 14px;
+            font-size: 0.96rem;
+            color: var(--text-main);
+            line-height: 1.45;
+        }
+
+        .q-num {
+            flex: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--cyan));
+            color: #05060f;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.78rem;
+            margin-top: 1px;
+        }
+
+        .q-text {
+            padding-top: 2px;
+        }
+
+        .options-group {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .option-label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 11px 4px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .option-label:hover {
+            border-color: var(--border-strong);
+            color: var(--text-main);
+        }
+
+        .option-label input {
+            display: none;
+        }
+
+        /* Efecto cuando se selecciona una opción */
+        .option-label:has(input:checked) {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--cyan) 100%);
+            border-color: transparent;
+            color: #05060f;
+            box-shadow: 0 4px 18px rgba(124, 92, 255, 0.45);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            font-family: var(--font-display);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--cyan) 100%);
+            color: #05060f;
+            border: none;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 22px;
+            box-shadow: 0 8px 24px rgba(124, 92, 255, 0.35);
+        }
+
+        button:hover {
+            filter: brightness(1.08);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(45, 212, 240, 0.4);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result-box {
+            background: linear-gradient(180deg, rgba(62, 224, 138, 0.06), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(62, 224, 138, 0.35);
+            padding: 22px 20px;
+            border-radius: var(--radius-sm);
+            margin-top: 15px;
+            box-shadow: 0 0 30px -8px rgba(62, 224, 138, 0.3);
+        }
+
+        .result-box h3 {
+            font-family: var(--font-display);
+            color: var(--success);
+            margin-top: 0;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .result-stat {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--accent, var(--primary));
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        ul.career-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0 0 0;
+            padding: 0;
+        }
+
+        ul.career-list li {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--success);
+            background: var(--success-soft);
+            border: 1px solid rgba(62, 224, 138, 0.4);
+            padding: 8px 14px;
+            border-radius: 30px;
+        }
+
+        #results h2 {
+            font-family: var(--font-display);
+            text-align: center;
+            background: linear-gradient(120deg, #ffffff, var(--success));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Ajustes específicos para celulares muy pequeños */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 22px 16px;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            .options-group {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+            .option-label {
+                justify-content: flex-start;
+                padding: 10px 14px;
+            }
+        }
+    </style>
+    <!-- SDK de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="container" style="text-align: center;">
+        <span class="header-badge">Orientación 2027</span>
+        <h1>Test Vocacional</h1>
+        <p class="subtitle">Descubre qué onda va más contigo respondiendo sinceramente.</p>
+
+        <form id="vocationalForm" style="text-align: left;">
+            <div class="progress-wrap">
+                <div class="progress-labels">
+                    <span>Progreso</span>
+                    <span><span id="progressCount">0</span>/60</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            <div class="question-card" style="border-left-color: var(--cyan);">
+                <label for="nombreParticipante" style="display:block; font-weight:600; margin-bottom:8px; font-size:0.92rem;">
+                    Tu nombre o apodo (opcional)
+                </label>
+                <input type="text" id="nombreParticipante" placeholder="Ej: Javier V."
+                       style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border-strong); background:rgba(255,255,255,0.05); color:var(--text-main); font-family:var(--font-body); font-size:0.95rem;">
+            </div>
+            <h2 class="section-heading">Parte 1 · Intereses vocacionales</h2>
+            <p class="section-intro">Responde cuánto te identificas con cada actividad.</p>
+            <div id="questionsContainer"></div>
+            <h2 class="section-heading">Parte 2 · Aptitudes percibidas</h2>
+            <p class="section-intro">Ahora evalúa qué tan fácil se te hace realizar estas tareas. Piensa en experiencias reales del colegio, actividades, hobbies o tu vida diaria. No respondas según lo que te gustaría saber hacer, sino según lo que has demostrado hasta ahora.</p>
+            <div id="aptitudeQuestionsContainer"></div>
+            <button type="button" id="submitBtn" onclick="calcularResultado()">Ver Mis Resultados y Carreras</button>
+        </form>
+
+        <div id="results" class="hidden" style="text-align: left;">
+            <h2>¡Tus Resultados Listos!</h2>
+            <div id="resultContent" class="result-box"></div>
+            <button type="button" onclick="reiniciarTest()" style="margin-top: 20px;">Volver a hacer el test</button>
+        </div>
+    </div>
+
+    <script>
+        // Inicializar cliente Supabase (reemplaza con tus datos reales)
+        const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co';
+        const SUPABASE_ANON_KEY = 'TU_LLAVE_ANON_PUBLICA';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Inventario de intereses basado en las seis dimensiones RIASEC.
+        // Es una herramienta orientativa, no una evaluación psicológica validada.
+        const preguntas = [
+            // Realista
+            { texto: "Disfruto construir, reparar o ensamblar objetos y comprobar que funcionan.", categoria: "R" },
+            { texto: "Prefiero aprender realizando actividades prácticas en vez de limitarme a leer o escuchar explicaciones.", categoria: "R" },
+            { texto: "Me interesan las máquinas, herramientas, equipos o sistemas físicos y cómo se utilizan.", categoria: "R" },
+            { texto: "Me gustaría realizar actividades en terreno, al aire libre o en espacios de trabajo prácticos.", categoria: "R" },
+            { texto: "Tengo paciencia para identificar fallas y probar soluciones concretas.", categoria: "R" },
+            { texto: "Me satisface trabajar con materiales, objetos, plantas, animales o equipos.", categoria: "R" },
+            // Investigador
+            { texto: "Me gusta investigar por qué ocurren las cosas y buscar explicaciones basadas en evidencia.", categoria: "I" },
+            { texto: "Disfruto resolver problemas que requieren lógica, análisis o razonamiento.", categoria: "I" },
+            { texto: "Cuando un tema me interesa, busco información adicional para comprenderlo en profundidad.", categoria: "I" },
+            { texto: "Me atraen las ciencias, la tecnología, los experimentos o el análisis de datos.", categoria: "I" },
+            { texto: "Me gusta comparar distintas explicaciones antes de llegar a una conclusión.", categoria: "I" },
+            { texto: "Disfrutaría una actividad en la que deba estudiar, descubrir o resolver preguntas complejas.", categoria: "I" },
+            // Artístico
+            { texto: "Me gusta crear cosas originales, como diseños, imágenes, música, textos o videos.", categoria: "A" },
+            { texto: "Disfruto expresar ideas o emociones de una manera creativa.", categoria: "A" },
+            { texto: "Me interesa la estética, la composición, los colores, las formas o la presentación de las cosas.", categoria: "A" },
+            { texto: "Prefiero tener espacio para proponer ideas propias y probar distintas maneras de hacer algo.", categoria: "A" },
+            { texto: "Me atraen actividades relacionadas con el arte, la comunicación creativa o el diseño.", categoria: "A" },
+            { texto: "Me motiva transformar una idea imaginada en una creación concreta.", categoria: "A" },
+            // Social
+            { texto: "Me gusta ayudar a otras personas a aprender, mejorar o resolver dificultades.", categoria: "S" },
+            { texto: "Escucho con atención cuando alguien necesita conversar o recibir apoyo.", categoria: "S" },
+            { texto: "Disfruto explicar temas y adaptar mi forma de comunicarme para que otros comprendan.", categoria: "S" },
+            { texto: "Me interesa participar en actividades que beneficien a una comunidad o grupo.", categoria: "S" },
+            { texto: "Me siento cómodo colaborando con personas que tienen distintas necesidades y opiniones.", categoria: "S" },
+            { texto: "Me gustaría trabajar en una actividad donde el contacto y el servicio a las personas sean importantes.", categoria: "S" },
+            // Emprendedor
+            { texto: "Me entusiasma tomar la iniciativa y conseguir que un proyecto avance.", categoria: "E" },
+            { texto: "Me siento cómodo presentando ideas, argumentando y tratando de convencer a otras personas.", categoria: "E" },
+            { texto: "Me interesa organizar equipos y coordinar a las personas para alcanzar una meta.", categoria: "E" },
+            { texto: "Me atrae crear un negocio, desarrollar un proyecto propio o detectar oportunidades.", categoria: "E" },
+            { texto: "Disfruto asumir desafíos en los que hay que decidir y hacerse responsable del resultado.", categoria: "E" },
+            { texto: "Me motivan las metas exigentes y la posibilidad de obtener resultados concretos.", categoria: "E" },
+            // Convencional
+            { texto: "Me gusta ordenar información, mantener registros y trabajar con instrucciones claras.", categoria: "C" },
+            { texto: "Disfruto trabajar con planillas, documentos, cifras o sistemas de información.", categoria: "C" },
+            { texto: "Soy cuidadoso al revisar detalles y detectar errores en una tarea.", categoria: "C" },
+            { texto: "Prefiero planificar las actividades y seguir un método organizado.", categoria: "C" },
+            { texto: "Me siento cómodo realizando tareas administrativas o de control.", categoria: "C" },
+            { texto: "Me satisface dejar la información clasificada, completa y fácil de encontrar.", categoria: "C" }
+        ];
+
+        const perfiles = {
+            R: { nombre: "Realista", descripcion: "Interés por actividades prácticas, técnicas, manuales y de terreno." },
+            I: { nombre: "Investigador", descripcion: "Interés por investigar, analizar, comprender y resolver problemas." },
+            A: { nombre: "Artístico", descripcion: "Interés por crear, diseñar, comunicar y expresar ideas de forma original." },
+            S: { nombre: "Social", descripcion: "Interés por enseñar, acompañar, orientar y ayudar a otras personas." },
+            E: { nombre: "Emprendedor", descripcion: "Interés por liderar, persuadir, organizar proyectos y alcanzar objetivos." },
+            C: { nombre: "Convencional", descripcion: "Interés por organizar, administrar, trabajar con datos y cuidar los detalles." }
+        };
+
+        const coloresCategoria = { R: "#ff9f5f", I: "#2dd4f0", A: "#ff5fa2", S: "#3ee08a", E: "#ffd166", C: "#a48cff" };
+
+        const carrerasPorPar = {
+            "IR": ["Ingeniería Civil", "Ingeniería Mecánica", "Agronomía", "Ingeniería Eléctrica", "Geología", "Ingeniería en Computación"],
+            "AR": ["Arquitectura", "Diseño Industrial", "Ingeniería en Sonido", "Paisajismo", "Gastronomía", "Diseño de Productos"],
+            "RS": ["Enfermería", "Kinesiología", "Técnico en Enfermería", "Medicina Veterinaria", "Terapia Ocupacional", "Educación Física"],
+            "ER": ["Ingeniería en Construcción", "Prevención de Riesgos", "Administración Agropecuaria", "Logística", "Ingeniería en Operaciones"],
+            "CR": ["Informática", "Ciberseguridad", "Topografía", "Mantenimiento Industrial", "Control de Calidad"],
+            "AI": ["Diseño de Videojuegos", "Animación Digital", "Arquitectura", "Diseño Gráfico", "Diseño Multimedia"],
+            "AS": ["Psicología", "Periodismo", "Pedagogía en Artes o Música", "Publicidad", "Teatro", "Comunicación Audiovisual"],
+            "AE": ["Diseño de Moda", "Publicidad y Marketing", "Producción de Eventos", "Dirección de Arte", "Diseño de Interiores"],
+            "AC": ["Diseño Editorial", "Bibliotecología", "Gestión Cultural", "Archivística", "Diseño de Información"],
+            "IS": ["Medicina", "Psicología", "Nutrición y Dietética", "Fonoaudiología", "Tecnología Médica", "Biotecnología"],
+            "EI": ["Ingeniería Comercial", "Ingeniería Civil Industrial", "Ciencia de Datos", "Economía", "Ingeniería en Innovación"],
+            "CI": ["Estadística", "Ingeniería en Control de Gestión", "Auditoría", "Actuaría", "Analítica de Datos"],
+            "ES": ["Derecho", "Administración Pública", "Trabajo Social", "Relaciones Públicas", "Gestión de Personas"],
+            "CS": ["Contabilidad", "Trabajo Social", "Educación Diferencial", "Administración en Salud", "Gestión Administrativa"],
+            "CE": ["Ingeniería Comercial", "Auditoría", "Comercio Internacional", "Banca y Finanzas", "Administración de Empresas"]
+        };
+        const carrerasPorPerfil = {
+            R: ["Técnico en Mantenimiento", "Construcción", "Electricidad", "Mecánica", "Agronomía"],
+            I: ["Ciencias", "Medicina", "Ingeniería", "Biotecnología", "Estadística"],
+            A: ["Diseño", "Artes Visuales", "Comunicación Audiovisual", "Música", "Publicidad"],
+            S: ["Psicología", "Enfermería", "Pedagogía", "Trabajo Social", "Terapia Ocupacional"],
+            E: ["Ingeniería Comercial", "Administración", "Derecho", "Marketing", "Relaciones Públicas"],
+            C: ["Contabilidad", "Auditoría", "Administración", "Logística", "Control de Gestión"]
+        };
+
+        // Segunda dimensión: aptitudes autopercibidas. No equivale a una prueba objetiva de habilidades.
+        const preguntasAptitud = [
+            { texto: "Se me facilita explicar una idea con claridad, oralmente o por escrito.", categoria: "V" },
+            { texto: "Comprendo textos, instrucciones o explicaciones y puedo resumir sus ideas principales.", categoria: "V" },
+            { texto: "Encuentro palabras para expresar lo que pienso incluso cuando el tema es complejo.", categoria: "V" },
+            { texto: "Detecto errores de redacción, diferencias de significado o detalles importantes en un texto.", categoria: "V" },
+            { texto: "Se me facilita trabajar con números, operaciones y cálculos cotidianos.", categoria: "N" },
+            { texto: "Puedo reconocer patrones, relaciones o tendencias en cifras y datos.", categoria: "N" },
+            { texto: "Entiendo problemas matemáticos y puedo encontrar un procedimiento para resolverlos.", categoria: "N" },
+            { texto: "Comparo cantidades, costos o porcentajes para tomar decisiones razonadas.", categoria: "N" },
+            { texto: "Puedo imaginar cómo se verá un objeto, espacio o diseño desde distintos ángulos.", categoria: "E" },
+            { texto: "Interpreto mapas, planos, diagramas o representaciones visuales con facilidad.", categoria: "E" },
+            { texto: "Me resulta sencillo ordenar elementos visualmente y reconocer formas o proporciones.", categoria: "E" },
+            { texto: "Puedo imaginar los pasos necesarios para armar, modificar o distribuir algo en un espacio.", categoria: "E" },
+            { texto: "Aprendo con rapidez a utilizar herramientas, equipos o materiales en tareas prácticas.", categoria: "P" },
+            { texto: "Coordino bien mis manos y movimientos al construir, reparar, cocinar o realizar tareas manuales.", categoria: "P" },
+            { texto: "Cuando algo no funciona, pruebo alternativas concretas hasta encontrar una solución.", categoria: "P" },
+            { texto: "Puedo seguir procedimientos prácticos con precisión y cuidado por la seguridad.", categoria: "P" },
+            { texto: "Me doy cuenta cuando otra persona necesita apoyo, aunque no lo diga directamente.", categoria: "S" },
+            { texto: "Puedo escuchar opiniones distintas y mantener una conversación respetuosa.", categoria: "S" },
+            { texto: "Se me facilita colaborar y coordinarme con otras personas para resolver una tarea.", categoria: "S" },
+            { texto: "Puedo explicar algo a otra persona adaptándome a lo que necesita comprender.", categoria: "S" },
+            { texto: "Organizo mis tareas y suelo cumplir plazos sin necesitar recordatorios constantes.", categoria: "O" },
+            { texto: "Se me facilita clasificar información, mantener registros y encontrar datos después.", categoria: "O" },
+            { texto: "Reviso mi trabajo para detectar errores antes de entregarlo.", categoria: "O" },
+            { texto: "Puedo dividir una tarea grande en pasos y seguir un plan hasta terminarla.", categoria: "O" }
+        ];
+        const aptitudes = {
+            V: { nombre: "Verbal y comunicativa", descripcion: "Explicar, comprender textos y comunicar ideas." },
+            N: { nombre: "Lógico-numérica", descripcion: "Trabajar con números, patrones y razonamiento cuantitativo." },
+            E: { nombre: "Espacial y visual", descripcion: "Interpretar planos, formas, proporciones y visualizar objetos." },
+            P: { nombre: "Práctica y motriz", descripcion: "Aprender haciendo, manipular herramientas y resolver tareas concretas." },
+            S: { nombre: "Interpersonal", descripcion: "Escuchar, colaborar, comprender y orientar a otras personas." },
+            O: { nombre: "Organización y atención al detalle", descripcion: "Planificar, ordenar información y revisar con precisión." }
+        };
+
+        const container = document.getElementById('questionsContainer');
+        const aptitudeContainer = document.getElementById('aptitudeQuestionsContainer');
+        const opciones = [
+            [1, "Nada me identifica"], [2, "Me identifica poco"], [3, "A veces / No estoy seguro"],
+            [4, "Me identifica bastante"], [5, "Me identifica mucho"]
+        ];
+
+        preguntas.forEach((p, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `
+                <div class="question-title"><span class="q-num">${index + 1}</span><span class="q-text">${p.texto}</span></div>
+                <div class="options-group">
+                    ${opciones.map(([valor, etiqueta]) => `
+                        <label class="option-label"><input type="radio" name="p${index}" value="${valor}" required> ${valor} · ${etiqueta}</label>
+                    `).join('')}
+                </div>`;
+            container.appendChild(card);
+        });
+
+        preguntasAptitud.forEach((p, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `
+                <div class="question-title"><span class="q-num">${index + 37}</span><span class="q-text">${p.texto}</span></div>
+                <div class="options-group">
+                    ${opciones.map(([valor, etiqueta]) => `
+                        <label class="option-label"><input type="radio" name="a${index}" value="${valor}" required> ${valor} · ${etiqueta}</label>
+                    `).join('')}
+                </div>`;
+            aptitudeContainer.appendChild(card);
+        });
+
+        const progressFill = document.getElementById('progressFill');
+        const progressCount = document.getElementById('progressCount');
+        document.getElementById('vocationalForm').addEventListener('change', () => {
+            const respondidasIntereses = preguntas.filter((_, i) => document.querySelector(`input[name="p${i}"]:checked`)).length;
+            const respondidasAptitudes = preguntasAptitud.filter((_, i) => document.querySelector(`input[name="a${i}"]:checked`)).length;
+            const respondidas = respondidasIntereses + respondidasAptitudes;
+            progressCount.textContent = respondidas;
+            progressFill.style.width = `${(respondidas / (preguntas.length + preguntasAptitud.length)) * 100}%`;
+        });
+
+        async function calcularResultado() {
+            const puntajes = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+            for (let i = 0; i < preguntas.length; i++) {
+                const seleccionada = document.querySelector(`input[name="p${i}"]:checked`);
+                if (!seleccionada) {
+                    alert("Te faltan preguntas de intereses. Completa las 60 preguntas para ver el resultado.");
+                    document.querySelector(`input[name="p${i}"]`).closest('.question-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                puntajes[preguntas[i].categoria] += Number(seleccionada.value);
+            }
+
+            const puntajesAptitud = { V: 0, N: 0, E: 0, P: 0, S: 0, O: 0 };
+            for (let i = 0; i < preguntasAptitud.length; i++) {
+                const seleccionada = document.querySelector(`input[name="a${i}"]:checked`);
+                if (!seleccionada) {
+                    alert("Te faltan preguntas de aptitudes. Completa las 60 preguntas para ver el resultado.");
+                    document.querySelector(`input[name="a${i}"]`).closest('.question-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                puntajesAptitud[preguntasAptitud[i].categoria] += Number(seleccionada.value);
+            }
+
+            const ordenados = Object.entries(puntajes).sort((a, b) => b[1] - a[1]);
+            const aptitudesOrdenadas = Object.entries(puntajesAptitud).sort((a, b) => b[1] - a[1]);
+            const maximo = 30; // 6 preguntas por dimensión, máximo 5 puntos cada una.
+            const top = ordenados.slice(0, 3);
+            const [perfil1, perfil2] = top;
+            const diferencia = perfil1[1] - perfil2[1];
+            const par = [perfil1[0], perfil2[0]].sort().join('');
+            const carreras = carrerasPorPar[par] || carrerasPorPerfil[perfil1[0]];
+            const nivel = diferencia <= 2 ? "Intereses muy cercanos entre tus dos primeros perfiles" : diferencia <= 5 ? "Hay una tendencia principal, aunque también destaca tu segundo perfil" : "Se observa una preferencia más marcada por tu primer perfil";
+
+            // --- GUARDAR SILENCIOSAMENTE EN SUPABASE ---
+            const nombreInput = document.getElementById('nombreParticipante');
+            const nombreValor = nombreInput && nombreInput.value.trim() !== '' ? nombreInput.value.trim() : 'Anónimo';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('test_vocacional_resultados')
+                    .insert([{
+                        nombre_participante: nombreValor,
+                        perfil_principal: perfiles[perfil1[0]].nombre,
+                        segundo_perfil: perfiles[perfil2[0]].nombre,
+                        puntajes_riasec: puntajes,
+                        puntajes_aptitudes: puntajesAptitud,
+                        carreras_sugeridas: carreras
+                    }]);
+
+                if (error) console.error('Error guardando en Supabase:', error);
+            } catch (err) {
+                console.error('Error de red:', err);
+            }
+
+            const barras = ordenados.map(([cat, puntos]) => {
+                const porcentaje = Math.round((puntos / maximo) * 100);
+                return `<div class="result-stat" style="--accent:${coloresCategoria[cat]}">
+                    <div style="display:flex;justify-content:space-between;gap:10px"><strong>${perfiles[cat].nombre}</strong><strong>${porcentaje}%</strong></div>
+                    <div style="height:8px;background:rgba(255,255,255,.08);border-radius:20px;margin:8px 0;overflow:hidden"><div style="height:100%;width:${porcentaje}%;background:${coloresCategoria[cat]};border-radius:20px"></div></div>
+                    <small>${puntos} de 30 puntos · ${perfiles[cat].descripcion}</small>
+                </div>`;
+            }).join('');
+
+            const maximoAptitud = 20;
+            const barrasAptitud = aptitudesOrdenadas.map(([cat, puntos]) => {
+                const porcentaje = Math.round((puntos / maximoAptitud) * 100);
+                return `<div class="result-stat" style="--accent:var(--cyan)">
+                    <div style="display:flex;justify-content:space-between;gap:10px"><strong>${aptitudes[cat].nombre}</strong><strong>${porcentaje}%</strong></div>
+                    <div style="height:8px;background:rgba(255,255,255,.08);border-radius:20px;margin:8px 0;overflow:hidden"><div style="height:100%;width:${porcentaje}%;background:var(--cyan);border-radius:20px"></div></div>
+                    <small>${puntos} de 20 puntos · ${aptitudes[cat].descripcion}</small>
+                </div>`;
+            }).join('');
+            const brechaAptitud = aptitudesOrdenadas[0][1] - aptitudesOrdenadas[1][1];
+            const lecturaAptitud = brechaAptitud <= 2 ? "Tus dos áreas más altas están bastante cercanas." : "Se observa una fortaleza autopercibida más marcada en tu primera área.";
+
+            const contenido = `
+                <h3>Tu mapa de intereses</h3>
+                <p class="result-stat" style="--accent:${coloresCategoria[perfil1[0]]}"><strong>Perfil principal: ${perfiles[perfil1[0]].nombre}</strong><br>${perfiles[perfil1[0]].descripcion}</p>
+                <p class="result-stat" style="--accent:${coloresCategoria[perfil2[0]]}"><strong>Segundo perfil: ${perfiles[perfil2[0]].nombre}</strong><br>${perfiles[perfil2[0]].descripcion}</p>
+                <p><strong>Lectura del resultado:</strong> ${nivel}.</p>
+                <h3>Resultado de los seis perfiles</h3>${barras}
+                <h3 style="margin-top:24px">Tu mapa de aptitudes percibidas</h3>
+                <p><strong>Área más destacada:</strong> ${aptitudes[aptitudesOrdenadas[0][0]].nombre}. ${lecturaAptitud}</p>
+                ${barrasAptitud}
+                <p style="font-size:.9rem;color:var(--text-muted)"><em>Estas puntuaciones reflejan cómo evalúas tus propias habilidades; no son una medición objetiva ni una prueba de inteligencia. Para comprobarlas, conviene contrastarlas con notas, trabajos, actividades prácticas y evaluaciones.</em></p>
+                <h3 style="margin-top:22px">Áreas de estudio para explorar</h3>
+                <p>Estas alternativas se relacionan con tus dos intereses más altos. No son una elección definitiva ni un diagnóstico.</p>
+                <ul class="career-list">${carreras.map(c => `<li>${c}</li>`).join('')}</ul>
+                <h3 style="margin-top:22px">También podrías explorar</h3>
+                <p>Según tu tercer perfil (${perfiles[top[2][0]].nombre}), considera:</p>
+                <ul class="career-list">${carrerasPorPerfil[top[2][0]].map(c => `<li>${c}</li>`).join('')}</ul>
+                <p style="margin-top:18px;font-size:.9rem;color:var(--text-muted)"><em>Importante: este cuestionario mide intereses declarados. No mide habilidades, rendimiento académico, personalidad completa ni empleabilidad. Antes de decidir, revisa las mallas, requisitos, costos, acreditación y campo laboral de cada carrera, y conversa con orientación vocacional.</em></p>`;
+
+            document.getElementById('vocationalForm').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('resultContent').innerHTML = contenido;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function reiniciarTest() {
+            document.getElementById('vocationalForm').reset();
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('vocationalForm').classList.remove('hidden');
+            progressCount.textContent = '0';
+            progressFill.style.width = '0%';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
